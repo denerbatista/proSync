@@ -17,10 +17,14 @@
 
       <!-- Configurações -->
       <section
-        class="grid gap-4 md:grid-cols-3 bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4"
+        class="grid gap-4 md:grid-cols-4 bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4"
       >
+        <!-- Jornada -->
         <div class="flex flex-col gap-1">
-          <label for="jornada" class="text-xs sm:text-sm font-semibold text-slate-700">
+          <label
+            for="jornada"
+            class="text-xs sm:text-sm font-semibold text-slate-700"
+          >
             Jornada de trabalho (hh:mm)
           </label>
           <input
@@ -30,12 +34,16 @@
             value="08:12"
           />
           <small class="text-[11px] text-slate-500">
-            Padrão: 08:12 (para 12h use 12:00, etc.)
+            Padrão: 08:12 (pode alterar)
           </small>
         </div>
 
+        <!-- Almoço -->
         <div class="flex flex-col gap-1">
-          <label for="almoco" class="text-xs sm:text-sm font-semibold text-slate-700">
+          <label
+            for="almoco"
+            class="text-xs sm:text-sm font-semibold text-slate-700"
+          >
             Duração do almoço (hh:mm)
           </label>
           <input
@@ -49,6 +57,27 @@
           </small>
         </div>
 
+        <!-- Hora extra / Banco de horas -->
+        <div class="flex flex-col gap-1">
+          <label
+            for="extra"
+            class="text-xs sm:text-sm font-semibold text-slate-700"
+          >
+            Hora extra / banco (±hh:mm)
+          </label>
+          <input
+            id="extra"
+            type="text"
+            class="border rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ex.: 01:30 ou -00:45"
+          />
+          <small class="text-[11px] text-slate-500">
+            Use <strong>positivo</strong> p/ hora extra e
+            <strong>negativo</strong> p/ banco de horas.
+          </small>
+        </div>
+
+        <!-- Botões -->
         <div class="flex flex-col gap-2 justify-end">
           <button
             id="btnCalcular"
@@ -82,8 +111,7 @@
         <p class="text-[11px] sm:text-xs text-slate-500">
           Obs.: o cálculo automático usa principalmente os
           <strong>dois primeiros intervalos</strong> (manhã e tarde). Os demais
-          podem ser usados para ajustes manuais. Você pode apagar os intervalos
-          extras.
+          podem ser usados para ajustes manuais e podem ser removidos.
         </p>
 
         <div class="overflow-x-auto border border-slate-200 rounded-lg">
@@ -179,6 +207,20 @@
         return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
       }
 
+      function minutesToSignedDuration(mins) {
+        if (mins === 0) return "00:00";
+        const sign = mins < 0 ? "-" : "+";
+        const abs = Math.abs(mins);
+        const h = Math.floor(abs / 60);
+        const m = abs % 60;
+        return (
+          sign +
+          String(h).padStart(2, "0") +
+          ":" +
+          String(m).padStart(2, "0")
+        );
+      }
+
       function getJornadaMinutes() {
         const jornadaInput = document.getElementById("jornada");
         const mins = parseTimeToMinutes(jornadaInput.value);
@@ -195,6 +237,24 @@
           throw new Error("Informe uma duração de almoço válida (hh:mm).");
         }
         return mins;
+      }
+
+      function getExtraMinutes() {
+        const extraInput = document.getElementById("extra");
+        const v = extraInput.value.trim();
+        if (!v) return 0; // sem hora extra / banco
+
+        const match = v.match(/^([+-])?(\d{1,2}):([0-5]\d)$/);
+        if (!match) {
+          throw new Error(
+            "Hora extra/banco inválida. Use o formato ±hh:mm (ex.: 01:30 ou -00:45)."
+          );
+        }
+
+        const sign = match[1] === "-" ? -1 : 1;
+        const h = Number(match[2]);
+        const m = Number(match[3]);
+        return sign * (h * 60 + m);
       }
 
       function showMessage(text, isError = false) {
@@ -258,13 +318,26 @@
       function calcularAutomatico() {
         clearMessage();
 
-        let jornadaMin;
+        let jornadaBaseMin;
         let almocoMin;
+        let extraMin;
+
         try {
-          jornadaMin = getJornadaMinutes();
+          jornadaBaseMin = getJornadaMinutes();
           almocoMin = getAlmocoMinutes();
+          extraMin = getExtraMinutes();
         } catch (e) {
           showMessage(e.message, true);
+          return;
+        }
+
+        const jornadaMin = jornadaBaseMin + extraMin;
+
+        if (jornadaMin <= 0) {
+          showMessage(
+            "A jornada total (jornada base + hora extra/banco) ficou menor ou igual a zero.",
+            true
+          );
           return;
         }
 
@@ -312,7 +385,7 @@
             const trabalhadoManha = sai1 - ent1;
             if (trabalhadoManha <= 0 || trabalhadoManha >= jornadaMin) {
               showMessage(
-                "Horário da manhã inválido em relação à jornada.",
+                "Horário da manhã inválido em relação à jornada total.",
                 true
               );
               return;
@@ -325,7 +398,7 @@
             const trabalhadoTarde = sai2 - ent2;
             if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
               showMessage(
-                "Horário da tarde inválido em relação à jornada.",
+                "Horário da tarde inválido em relação à jornada total.",
                 true
               );
               return;
@@ -340,7 +413,7 @@
               return;
             }
           } else {
-            // Caso mais solto → tenta ajustar para bater jornada + almoço
+            // Caso mais solto → tenta ajustar para bater jornada total + almoço
             const referenciaFinal = sai2 ?? ent2 ?? sai1;
             if (referenciaFinal !== null) {
               const totalPresenca = referenciaFinal - ent1;
@@ -350,7 +423,7 @@
                 ent2 = sai1 + almocoMin;
                 sai2 = ent2 + metadeJornada;
                 showMessage(
-                  "Horários ajustados automaticamente para bater a jornada + almoço.",
+                  "Horários ajustados automaticamente para bater a jornada total + almoço.",
                   false
                 );
               }
@@ -367,7 +440,7 @@
             const trabalhadoTarde = sai2 - ent2;
             if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
               showMessage(
-                "Horário da tarde inválido em relação à jornada.",
+                "Horário da tarde inválido em relação à jornada total.",
                 true
               );
               return;
@@ -399,7 +472,11 @@
 
         if (!msg.textContent) {
           showMessage(
-            "Cálculo concluído. Ajuste manualmente se necessário.",
+            `Cálculo concluído. Jornada base: ${minutesToHHMM(
+              jornadaBaseMin
+            )}, extra/banco: ${minutesToSignedDuration(
+              extraMin
+            )}, total: ${minutesToHHMM(jornadaMin)}.`,
             false
           );
         }
