@@ -2,63 +2,63 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Calculadora de Jornada de Trabalho</title>
-
-    <!-- Tailwind CDN (html puro + tailwind) -->
+    <title>ProSync - Calculadora de Jornada de Trabalho</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-slate-100 min-h-screen flex items-center justify-center">
-    <div class="max-w-3xl w-full mx-4 bg-white shadow-lg rounded-xl p-6 space-y-6">
-      <h1 class="text-2xl font-bold text-slate-800 text-center">
-        Calculadora de Horários de Trabalho
+    <div
+      class="w-full max-w-3xl mx-3 my-4 bg-white shadow-lg rounded-xl p-4 sm:p-6 space-y-6"
+    >
+      <h1 class="text-xl sm:text-2xl font-bold text-slate-800 text-center">
+        ProSync - Calculadora de Jornada
       </h1>
 
       <!-- Configurações -->
       <section
-        class="grid gap-4 md:grid-cols-3 bg-slate-50 border border-slate-200 rounded-lg p-4"
+        class="grid gap-4 md:grid-cols-3 bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4"
       >
         <div class="flex flex-col gap-1">
-          <label for="jornadaHoras" class="text-sm font-semibold text-slate-700">
-            Jornada de trabalho (horas)
+          <label for="jornada" class="text-xs sm:text-sm font-semibold text-slate-700">
+            Jornada de trabalho (hh:mm)
           </label>
           <input
-            id="jornadaHoras"
-            type="number"
-            step="0.25"
-            min="1"
-            class="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value="8"
+            id="jornada"
+            type="time"
+            class="border rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value="08:00"
           />
-          <small class="text-xs text-slate-500">
-            Padrão: 8h (pode alterar, ex.: 12 para plantão 12h)
+          <small class="text-[11px] text-slate-500">
+            Padrão: 08:00 (para 12h use 12:00, etc.)
           </small>
         </div>
 
         <div class="flex flex-col gap-1">
-          <label for="almoco" class="text-sm font-semibold text-slate-700">
+          <label for="almoco" class="text-xs sm:text-sm font-semibold text-slate-700">
             Duração do almoço (hh:mm)
           </label>
           <input
             id="almoco"
             type="time"
-            class="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="border rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             value="01:48"
           />
-          <small class="text-xs text-slate-500">
-            Padrão: 1h48 (pode alterar)
+          <small class="text-[11px] text-slate-500">
+            Padrão: 01:48 (pode alterar)
           </small>
         </div>
 
         <div class="flex flex-col gap-2 justify-end">
           <button
             id="btnCalcular"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2 rounded-md transition"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm py-2 rounded-md transition"
           >
             Calcular horários
           </button>
           <button
             id="btnLimpar"
-            class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium text-sm py-2 rounded-md transition"
+            class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium text-xs sm:text-sm py-2 rounded-md transition"
           >
             Limpar horários
           </button>
@@ -67,75 +67,85 @@
 
       <!-- Tabela de Entradas/Saídas -->
       <section class="space-y-3">
-        <div class="flex items-center justify-between gap-2">
-          <h2 class="text-lg font-semibold text-slate-800">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h2 class="text-base sm:text-lg font-semibold text-slate-800">
             Entradas e saídas
           </h2>
           <button
             id="btnAdicionar"
-            class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition"
+            class="self-start sm:self-auto inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium px-3 py-1.5 rounded-md transition"
           >
             + Adicionar intervalo
           </button>
         </div>
 
-        <p class="text-xs text-slate-500">
-          Obs.: o cálculo automático considera principalmente os
-          <strong>dois primeiros intervalos</strong> (manhã e tarde). Intervalos
-          extras podem ser usados para ajustes manuais (ex.: pausas menores).
+        <p class="text-[11px] sm:text-xs text-slate-500">
+          Obs.: o cálculo automático usa principalmente os
+          <strong>dois primeiros intervalos</strong> (manhã e tarde). Os demais
+          podem ser usados para ajustes manuais. Você pode apagar os intervalos
+          extras.
         </p>
 
         <div class="overflow-x-auto border border-slate-200 rounded-lg">
-          <table class="min-w-full text-sm">
+          <table class="min-w-full text-xs sm:text-sm">
             <thead class="bg-slate-100">
               <tr>
-                <th class="px-3 py-2 text-left font-semibold text-slate-700">
+                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
                   #
                 </th>
-                <th class="px-3 py-2 text-left font-semibold text-slate-700">
+                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
                   Entrada
                 </th>
-                <th class="px-3 py-2 text-left font-semibold text-slate-700">
+                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
                   Saída
+                </th>
+                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
+                  Ações
                 </th>
               </tr>
             </thead>
             <tbody id="tbodyIntervalos" class="divide-y divide-slate-100">
               <!-- Intervalo 1 (manhã) -->
               <tr>
-                <td class="px-3 py-2 text-slate-700 font-medium">1</td>
-                <td class="px-3 py-2">
+                <td class="px-2 sm:px-3 py-2 text-slate-700 font-medium">1</td>
+                <td class="px-2 sm:px-3 py-2">
                   <input
                     type="time"
-                    class="entrada border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="entrada border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="08:00"
                   />
                 </td>
-                <td class="px-3 py-2">
+                <td class="px-2 sm:px-3 py-2">
                   <input
                     type="time"
-                    class="saida border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="saida border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="12:00"
                   />
+                </td>
+                <td class="px-2 sm:px-3 py-2 text-[11px] text-slate-400">
+                  (fixo)
                 </td>
               </tr>
 
               <!-- Intervalo 2 (tarde) -->
               <tr>
-                <td class="px-3 py-2 text-slate-700 font-medium">2</td>
-                <td class="px-3 py-2">
+                <td class="px-2 sm:px-3 py-2 text-slate-700 font-medium">2</td>
+                <td class="px-2 sm:px-3 py-2">
                   <input
                     type="time"
-                    class="entrada border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="entrada border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="13:48"
                   />
                 </td>
-                <td class="px-3 py-2">
+                <td class="px-2 sm:px-3 py-2">
                   <input
                     type="time"
-                    class="saida border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="saida border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="17:48"
                   />
+                </td>
+                <td class="px-2 sm:px-3 py-2 text-[11px] text-slate-400">
+                  (fixo)
                 </td>
               </tr>
             </tbody>
@@ -144,7 +154,7 @@
       </section>
 
       <!-- Mensagens -->
-      <p id="mensagem" class="text-xs text-slate-600 italic"></p>
+      <p id="mensagem" class="text-[11px] sm:text-xs text-slate-600 italic"></p>
     </div>
 
     <!-- Script interno -->
@@ -163,26 +173,26 @@
       }
 
       function minutesToHHMM(mins) {
-        mins = ((mins % (24 * 60)) + 24 * 60) % (24 * 60); // normaliza (0–1439)
+        mins = ((mins % (24 * 60)) + 24 * 60) % (24 * 60); // normaliza 0–1439
         const h = Math.floor(mins / 60);
         const m = mins % 60;
         return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
       }
 
       function getJornadaMinutes() {
-        const jornadaHorasInput = document.getElementById("jornadaHoras");
-        const valor = parseFloat(jornadaHorasInput.value.replace(",", "."));
-        if (isNaN(valor) || valor <= 0) {
-          throw new Error("Informe uma jornada de trabalho válida (em horas).");
+        const jornadaInput = document.getElementById("jornada");
+        const mins = parseTimeToMinutes(jornadaInput.value);
+        if (mins === null || mins <= 0) {
+          throw new Error("Informe uma jornada de trabalho válida (hh:mm).");
         }
-        return Math.round(valor * 60);
+        return mins;
       }
 
       function getAlmocoMinutes() {
         const almocoInput = document.getElementById("almoco");
         const mins = parseTimeToMinutes(almocoInput.value);
         if (mins === null || mins <= 0) {
-          throw new Error("Informe uma duração de almoço válida.");
+          throw new Error("Informe uma duração de almoço válida (hh:mm).");
         }
         return mins;
       }
@@ -190,31 +200,48 @@
       function showMessage(text, isError = false) {
         msg.textContent = text;
         msg.className =
-          "text-xs italic " + (isError ? "text-red-600" : "text-emerald-700");
+          "text-[11px] sm:text-xs italic " +
+          (isError ? "text-red-600" : "text-emerald-700");
       }
 
       function clearMessage() {
         msg.textContent = "";
-        msg.className = "text-xs text-slate-600 italic";
+        msg.className = "text-[11px] sm:text-xs text-slate-600 italic";
+      }
+
+      function renumerarLinhas() {
+        const linhas = tbody.querySelectorAll("tr");
+        linhas.forEach((tr, index) => {
+          const tdIndex = tr.querySelector("td");
+          if (tdIndex) tdIndex.textContent = index + 1;
+        });
       }
 
       function adicionarLinha() {
-        const rows = tbody.querySelectorAll("tr").length;
-        const index = rows + 1;
+        const linhas = tbody.querySelectorAll("tr").length;
+        const index = linhas + 1;
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="px-3 py-2 text-slate-700 font-medium">${index}</td>
-          <td class="px-3 py-2">
+          <td class="px-2 sm:px-3 py-2 text-slate-700 font-medium">${index}</td>
+          <td class="px-2 sm:px-3 py-2">
             <input
               type="time"
-              class="entrada border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="entrada border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </td>
-          <td class="px-3 py-2">
+          <td class="px-2 sm:px-3 py-2">
             <input
               type="time"
-              class="saida border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="saida border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </td>
+          <td class="px-2 sm:px-3 py-2">
+            <button
+              type="button"
+              class="btn-remover text-[11px] sm:text-xs text-red-600 hover:text-red-800"
+            >
+              Remover
+            </button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -273,12 +300,15 @@
           return;
         }
 
-        if (ent1) {
-          if (!sai1 && !ent2 && !sai2) {
+        // Cálculo a partir da primeira entrada
+        if (ent1 !== null) {
+          if (sai1 === null && ent2 === null && sai2 === null) {
+            // Só entrada 1 preenchida → divide jornada em 2 blocos iguais
             sai1 = ent1 + metadeJornada;
             ent2 = sai1 + almocoMin;
             sai2 = ent2 + metadeJornada;
-          } else if (sai1 && !ent2 && !sai2) {
+          } else if (sai1 !== null && ent2 === null && sai2 === null) {
+            // Entrada 1 e saída 1 preenchidas → calcula resto na tarde
             const trabalhadoManha = sai1 - ent1;
             if (trabalhadoManha <= 0 || trabalhadoManha >= jornadaMin) {
               showMessage(
@@ -290,7 +320,8 @@
             const restante = jornadaMin - trabalhadoManha;
             ent2 = sai1 + almocoMin;
             sai2 = ent2 + restante;
-          } else if (!sai1 && ent2 && sai2) {
+          } else if (sai1 === null && ent2 !== null && sai2 !== null) {
+            // Entrada 1, entrada 2 e saída 2 preenchidas → calcula saída 1
             const trabalhadoTarde = sai2 - ent2;
             if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
               showMessage(
@@ -309,24 +340,30 @@
               return;
             }
           } else {
-            const totalPresenca = (sai2 || ent2 || sai1) - ent1;
-            const idealPresenca = jornadaMin + almocoMin;
-            if (totalPresenca !== idealPresenca) {
-              sai1 = ent1 + metadeJornada;
-              ent2 = sai1 + almocoMin;
-              sai2 = ent2 + metadeJornada;
-              showMessage(
-                "Horários ajustados automaticamente para bater a jornada + almoço.",
-                false
-              );
+            // Caso mais solto → tenta ajustar para bater jornada + almoço
+            const referenciaFinal = sai2 ?? ent2 ?? sai1;
+            if (referenciaFinal !== null) {
+              const totalPresenca = referenciaFinal - ent1;
+              const idealPresenca = jornadaMin + almocoMin;
+              if (totalPresenca !== idealPresenca) {
+                sai1 = ent1 + metadeJornada;
+                ent2 = sai1 + almocoMin;
+                sai2 = ent2 + metadeJornada;
+                showMessage(
+                  "Horários ajustados automaticamente para bater a jornada + almoço.",
+                  false
+                );
+              }
             }
           }
-        } else if (sai2) {
-          if (!ent1 && !sai1 && !ent2) {
+        } else if (sai2 !== null) {
+          // Cálculo a partir da última saída
+          if (ent1 === null && sai1 === null && ent2 === null) {
+            // Só saída 2 preenchida → divide jornada em 2 blocos iguais
             ent2 = sai2 - metadeJornada;
             sai1 = ent2 - almocoMin;
             ent1 = sai1 - metadeJornada;
-          } else if (!ent1 && sai1 && ent2) {
+          } else if (ent1 === null && sai1 !== null && ent2 !== null) {
             const trabalhadoTarde = sai2 - ent2;
             if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
               showMessage(
@@ -355,10 +392,10 @@
           }
         }
 
-        if (ent1) ent1Input.value = minutesToHHMM(ent1);
-        if (sai1) sai1Input.value = minutesToHHMM(sai1);
-        if (ent2) ent2Input.value = minutesToHHMM(ent2);
-        if (sai2) sai2Input.value = minutesToHHMM(sai2);
+        if (ent1 !== null) ent1Input.value = minutesToHHMM(ent1);
+        if (sai1 !== null) sai1Input.value = minutesToHHMM(sai1);
+        if (ent2 !== null) ent2Input.value = minutesToHHMM(ent2);
+        if (sai2 !== null) sai2Input.value = minutesToHHMM(sai2);
 
         if (!msg.textContent) {
           showMessage(
@@ -368,9 +405,25 @@
         }
       }
 
+      // Eventos
       btnAdicionar.addEventListener("click", adicionarLinha);
       btnCalcular.addEventListener("click", calcularAutomatico);
       btnLimpar.addEventListener("click", limparHorarios);
+
+      // Delegação para remover apenas intervalos extras (a partir do 3º)
+      tbody.addEventListener("click", (event) => {
+        const target = event.target;
+        if (target.classList.contains("btn-remover")) {
+          const linhas = Array.from(tbody.querySelectorAll("tr"));
+          const tr = target.closest("tr");
+          const index = linhas.indexOf(tr);
+          // 0 e 1 são os dois primeiros intervalos (não remover)
+          if (index > 1) {
+            tr.remove();
+            renumerarLinhas();
+          }
+        }
+      });
     </script>
   </body>
 </html>
