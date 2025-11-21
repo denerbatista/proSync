@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Calculadora de Jornada de Trabalho</title>
+
+    <!-- Tailwind CDN (html puro + tailwind) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-100 min-h-screen flex items-center justify-center">
+    <div class="max-w-3xl w-full mx-4 bg-white shadow-lg rounded-xl p-6 space-y-6">
+      <h1 class="text-2xl font-bold text-slate-800 text-center">
+        Calculadora de Horários de Trabalho
+      </h1>
+
+      <!-- Configurações -->
+      <section
+        class="grid gap-4 md:grid-cols-3 bg-slate-50 border border-slate-200 rounded-lg p-4"
+      >
+        <div class="flex flex-col gap-1">
+          <label for="jornadaHoras" class="text-sm font-semibold text-slate-700">
+            Jornada de trabalho (horas)
+          </label>
+          <input
+            id="jornadaHoras"
+            type="number"
+            step="0.25"
+            min="1"
+            class="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value="8"
+          />
+          <small class="text-xs text-slate-500">
+            Padrão: 8h (pode alterar, ex.: 12 para plantão 12h)
+          </small>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="almoco" class="text-sm font-semibold text-slate-700">
+            Duração do almoço (hh:mm)
+          </label>
+          <input
+            id="almoco"
+            type="time"
+            class="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value="01:48"
+          />
+          <small class="text-xs text-slate-500">
+            Padrão: 1h48 (pode alterar)
+          </small>
+        </div>
+
+        <div class="flex flex-col gap-2 justify-end">
+          <button
+            id="btnCalcular"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2 rounded-md transition"
+          >
+            Calcular horários
+          </button>
+          <button
+            id="btnLimpar"
+            class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium text-sm py-2 rounded-md transition"
+          >
+            Limpar horários
+          </button>
+        </div>
+      </section>
+
+      <!-- Tabela de Entradas/Saídas -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-lg font-semibold text-slate-800">
+            Entradas e saídas
+          </h2>
+          <button
+            id="btnAdicionar"
+            class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition"
+          >
+            + Adicionar intervalo
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500">
+          Obs.: o cálculo automático considera principalmente os
+          <strong>dois primeiros intervalos</strong> (manhã e tarde). Intervalos
+          extras podem ser usados para ajustes manuais (ex.: pausas menores).
+        </p>
+
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr>
+                <th class="px-3 py-2 text-left font-semibold text-slate-700">
+                  #
+                </th>
+                <th class="px-3 py-2 text-left font-semibold text-slate-700">
+                  Entrada
+                </th>
+                <th class="px-3 py-2 text-left font-semibold text-slate-700">
+                  Saída
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tbodyIntervalos" class="divide-y divide-slate-100">
+              <!-- Intervalo 1 (manhã) -->
+              <tr>
+                <td class="px-3 py-2 text-slate-700 font-medium">1</td>
+                <td class="px-3 py-2">
+                  <input
+                    type="time"
+                    class="entrada border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="08:00"
+                  />
+                </td>
+                <td class="px-3 py-2">
+                  <input
+                    type="time"
+                    class="saida border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="12:00"
+                  />
+                </td>
+              </tr>
+
+              <!-- Intervalo 2 (tarde) -->
+              <tr>
+                <td class="px-3 py-2 text-slate-700 font-medium">2</td>
+                <td class="px-3 py-2">
+                  <input
+                    type="time"
+                    class="entrada border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="13:48"
+                  />
+                </td>
+                <td class="px-3 py-2">
+                  <input
+                    type="time"
+                    class="saida border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="17:48"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Mensagens -->
+      <p id="mensagem" class="text-xs text-slate-600 italic"></p>
+    </div>
+
+    <!-- Script interno -->
+    <script>
+      const tbody = document.getElementById("tbodyIntervalos");
+      const btnAdicionar = document.getElementById("btnAdicionar");
+      const btnCalcular = document.getElementById("btnCalcular");
+      const btnLimpar = document.getElementById("btnLimpar");
+      const msg = document.getElementById("mensagem");
+
+      function parseTimeToMinutes(value) {
+        if (!value) return null;
+        const [h, m] = value.split(":").map(Number);
+        if (Number.isNaN(h) || Number.isNaN(m)) return null;
+        return h * 60 + m;
+      }
+
+      function minutesToHHMM(mins) {
+        mins = ((mins % (24 * 60)) + 24 * 60) % (24 * 60); // normaliza (0–1439)
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+      }
+
+      function getJornadaMinutes() {
+        const jornadaHorasInput = document.getElementById("jornadaHoras");
+        const valor = parseFloat(jornadaHorasInput.value.replace(",", "."));
+        if (isNaN(valor) || valor <= 0) {
+          throw new Error("Informe uma jornada de trabalho válida (em horas).");
+        }
+        return Math.round(valor * 60);
+      }
+
+      function getAlmocoMinutes() {
+        const almocoInput = document.getElementById("almoco");
+        const mins = parseTimeToMinutes(almocoInput.value);
+        if (mins === null || mins <= 0) {
+          throw new Error("Informe uma duração de almoço válida.");
+        }
+        return mins;
+      }
+
+      function showMessage(text, isError = false) {
+        msg.textContent = text;
+        msg.className =
+          "text-xs italic " + (isError ? "text-red-600" : "text-emerald-700");
+      }
+
+      function clearMessage() {
+        msg.textContent = "";
+        msg.className = "text-xs text-slate-600 italic";
+      }
+
+      function adicionarLinha() {
+        const rows = tbody.querySelectorAll("tr").length;
+        const index = rows + 1;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="px-3 py-2 text-slate-700 font-medium">${index}</td>
+          <td class="px-3 py-2">
+            <input
+              type="time"
+              class="entrada border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </td>
+          <td class="px-3 py-2">
+            <input
+              type="time"
+              class="saida border rounded-md px-2 py-1 w-28 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      function limparHorarios() {
+        const entradas = tbody.querySelectorAll(".entrada");
+        const saidas = tbody.querySelectorAll(".saida");
+        entradas.forEach((i) => (i.value = ""));
+        saidas.forEach((i) => (i.value = ""));
+        clearMessage();
+      }
+
+      function calcularAutomatico() {
+        clearMessage();
+
+        let jornadaMin;
+        let almocoMin;
+        try {
+          jornadaMin = getJornadaMinutes();
+          almocoMin = getAlmocoMinutes();
+        } catch (e) {
+          showMessage(e.message, true);
+          return;
+        }
+
+        const rows = tbody.querySelectorAll("tr");
+        if (rows.length < 2) {
+          showMessage(
+            "É recomendado ter pelo menos 2 intervalos (manhã e tarde).",
+            true
+          );
+          return;
+        }
+
+        const row1 = rows[0];
+        const row2 = rows[1];
+
+        const ent1Input = row1.querySelector(".entrada");
+        const sai1Input = row1.querySelector(".saida");
+        const ent2Input = row2.querySelector(".entrada");
+        const sai2Input = row2.querySelector(".saida");
+
+        let ent1 = parseTimeToMinutes(ent1Input.value);
+        let sai1 = parseTimeToMinutes(sai1Input.value);
+        let ent2 = parseTimeToMinutes(ent2Input.value);
+        let sai2 = parseTimeToMinutes(sai2Input.value);
+
+        const metadeJornada = Math.round(jornadaMin / 2);
+
+        if (!ent1 && !sai2 && !sai1 && !ent2) {
+          showMessage(
+            "Informe pelo menos a primeira entrada OU a última saída para calcular automaticamente.",
+            true
+          );
+          return;
+        }
+
+        if (ent1) {
+          if (!sai1 && !ent2 && !sai2) {
+            sai1 = ent1 + metadeJornada;
+            ent2 = sai1 + almocoMin;
+            sai2 = ent2 + metadeJornada;
+          } else if (sai1 && !ent2 && !sai2) {
+            const trabalhadoManha = sai1 - ent1;
+            if (trabalhadoManha <= 0 || trabalhadoManha >= jornadaMin) {
+              showMessage(
+                "Horário da manhã inválido em relação à jornada.",
+                true
+              );
+              return;
+            }
+            const restante = jornadaMin - trabalhadoManha;
+            ent2 = sai1 + almocoMin;
+            sai2 = ent2 + restante;
+          } else if (!sai1 && ent2 && sai2) {
+            const trabalhadoTarde = sai2 - ent2;
+            if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
+              showMessage(
+                "Horário da tarde inválido em relação à jornada.",
+                true
+              );
+              return;
+            }
+            const restante = jornadaMin - trabalhadoTarde;
+            sai1 = ent1 + restante;
+            if (ent2 - sai1 <= 0) {
+              showMessage(
+                "Intervalo entre manhã e tarde inválido. Ajuste manualmente.",
+                true
+              );
+              return;
+            }
+          } else {
+            const totalPresenca = (sai2 || ent2 || sai1) - ent1;
+            const idealPresenca = jornadaMin + almocoMin;
+            if (totalPresenca !== idealPresenca) {
+              sai1 = ent1 + metadeJornada;
+              ent2 = sai1 + almocoMin;
+              sai2 = ent2 + metadeJornada;
+              showMessage(
+                "Horários ajustados automaticamente para bater a jornada + almoço.",
+                false
+              );
+            }
+          }
+        } else if (sai2) {
+          if (!ent1 && !sai1 && !ent2) {
+            ent2 = sai2 - metadeJornada;
+            sai1 = ent2 - almocoMin;
+            ent1 = sai1 - metadeJornada;
+          } else if (!ent1 && sai1 && ent2) {
+            const trabalhadoTarde = sai2 - ent2;
+            if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
+              showMessage(
+                "Horário da tarde inválido em relação à jornada.",
+                true
+              );
+              return;
+            }
+            const restante = jornadaMin - trabalhadoTarde;
+            ent1 = sai1 - restante;
+            if (ent2 - sai1 <= 0) {
+              showMessage(
+                "Intervalo entre manhã e tarde inválido. Ajuste manualmente.",
+                true
+              );
+              return;
+            }
+          } else {
+            ent2 = sai2 - metadeJornada;
+            sai1 = ent2 - almocoMin;
+            ent1 = sai1 - metadeJornada;
+            showMessage(
+              "Horários calculados de trás para frente a partir da saída final.",
+              false
+            );
+          }
+        }
+
+        if (ent1) ent1Input.value = minutesToHHMM(ent1);
+        if (sai1) sai1Input.value = minutesToHHMM(sai1);
+        if (ent2) ent2Input.value = minutesToHHMM(ent2);
+        if (sai2) sai2Input.value = minutesToHHMM(sai2);
+
+        if (!msg.textContent) {
+          showMessage(
+            "Cálculo concluído. Ajuste manualmente se necessário.",
+            false
+          );
+        }
+      }
+
+      btnAdicionar.addEventListener("click", adicionarLinha);
+      btnCalcular.addEventListener("click", calcularAutomatico);
+      btnLimpar.addEventListener("click", limparHorarios);
+    </script>
+  </body>
+</html>
