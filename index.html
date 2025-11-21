@@ -2,133 +2,214 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>ProSync - Calculadora de Jornada de Trabalho</title>
+    <title>ProSync - Jornada de Trabalho (Passo a Passo)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-slate-100 min-h-screen flex items-center justify-center">
     <div
-      class="w-full max-w-3xl mx-3 my-4 bg-white shadow-lg rounded-xl p-4 sm:p-6 space-y-6"
+      class="w-full max-w-3xl mx-3 my-6 bg-white shadow-2xl rounded-2xl p-5 sm:p-8 space-y-6"
     >
-      <h1 class="text-xl sm:text-2xl font-bold text-slate-800 text-center">
-        ProSync - Calculadora de Jornada
-      </h1>
+      <header class="space-y-2 text-center">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+          ProSync – Jornada de Trabalho
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600">
+          Preencha os passos abaixo para calcular automaticamente seus horários
+          de entrada, saída, almoço e banco/hora extra.
+        </p>
+      </header>
 
-      <!-- Configurações -->
+      <!-- Indicador de passos -->
+      <nav class="flex items-center justify-center gap-3 sm:gap-6">
+        <div class="flex items-center gap-2">
+          <div
+            id="stepBubble1"
+            class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-blue-600 text-white"
+          >
+            1
+          </div>
+          <span class="hidden sm:inline text-sm font-medium text-slate-700"
+            >Configurações</span
+          >
+        </div>
+        <div class="h-px w-8 sm:w-16 bg-slate-300"></div>
+        <div class="flex items-center gap-2">
+          <div
+            id="stepBubble2"
+            class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-slate-200 text-slate-600"
+          >
+            2
+          </div>
+          <span class="hidden sm:inline text-sm font-medium text-slate-700"
+            >Entradas & saídas</span
+          >
+        </div>
+        <div class="h-px w-8 sm:w-16 bg-slate-300"></div>
+        <div class="flex items-center gap-2">
+          <div
+            id="stepBubble3"
+            class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-slate-200 text-slate-600"
+          >
+            3
+          </div>
+          <span class="hidden sm:inline text-sm font-medium text-slate-700"
+            >Resultado</span
+          >
+        </div>
+      </nav>
+
+      <!-- PASSO 1: Configurações -->
       <section
-        class="grid gap-4 md:grid-cols-4 bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4"
+        id="step1"
+        class="space-y-6 bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6"
       >
-        <!-- Jornada -->
-        <div class="flex flex-col gap-1">
-          <label
-            for="jornada"
-            class="text-xs sm:text-sm font-semibold text-slate-700"
-          >
-            Jornada de trabalho (hh:mm)
-          </label>
-          <input
-            id="jornada"
-            type="time"
-            class="border rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value="08:12"
-          />
-          <small class="text-[11px] text-slate-500">
-            Padrão: 08:12 (pode alterar)
-          </small>
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">
+          Passo 1 – Configurações básicas
+        </h2>
+        <p class="text-sm text-slate-600 mb-4">
+          Defina sua jornada padrão, tempo de almoço (opcional) e hora
+          extra/banco de horas. Esses dados serão usados para fechar os
+          horários.
+        </p>
+
+        <div class="grid gap-5 md:grid-cols-3">
+          <!-- Jornada -->
+          <div class="flex flex-col gap-2">
+            <label
+              for="jornada"
+              class="text-sm font-semibold text-slate-800 flex items-center justify-between"
+            >
+              Jornada de trabalho
+              <span class="text-[11px] uppercase text-blue-600 font-bold"
+                >obrigatório</span
+              >
+            </label>
+            <input
+              id="jornada"
+              type="time"
+              class="border rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value="08:12"
+            />
+            <p class="text-xs text-slate-500">
+              Padrão: <strong>08:12</strong>. Use hh:mm (ex.: 07:30, 12:00).
+            </p>
+          </div>
+
+          <!-- Almoço -->
+          <div class="flex flex-col gap-2">
+            <label
+              for="almoco"
+              class="text-sm font-semibold text-slate-800 flex items-center justify-between"
+            >
+              Duração do almoço
+              <span class="text-[11px] uppercase text-emerald-600 font-bold"
+                >opcional</span
+              >
+            </label>
+            <input
+              id="almoco"
+              type="time"
+              class="border rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Deixe em branco para calcular"
+            />
+            <p class="text-xs text-slate-500">
+              Se <strong>deixar em branco</strong>, o ProSync calcula o almoço
+              a partir da <strong>1ª entrada</strong> e
+              <strong>última saída</strong>.
+            </p>
+          </div>
+
+          <!-- Hora extra / Banco de horas -->
+          <div class="flex flex-col gap-2">
+            <label
+              for="extra"
+              class="text-sm font-semibold text-slate-800 flex items-center justify-between"
+            >
+              Hora extra / banco
+              <span class="text-[11px] uppercase text-amber-600 font-bold"
+                >opcional</span
+              >
+            </label>
+            <input
+              id="extra"
+              type="text"
+              class="border rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex.: 01:30 ou -00:45"
+            />
+            <p class="text-xs text-slate-500">
+              Use <strong>positivo</strong> para hora extra (ex.: 01:00) e
+              <strong>negativo</strong> para banco de horas (ex.: -00:30).
+            </p>
+          </div>
         </div>
 
-        <!-- Almoço -->
-        <div class="flex flex-col gap-1">
-          <label
-            for="almoco"
-            class="text-xs sm:text-sm font-semibold text-slate-700"
-          >
-            Duração do almoço (hh:mm)
-          </label>
-          <input
-            id="almoco"
-            type="time"
-            class="border rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Deixe em branco para calcular"
-          />
-          <small class="text-[11px] text-slate-500">
-            Deixe em branco se quiser que o sistema calcule o almoço usando
-            <strong>1ª entrada</strong> e <strong>última saída</strong>.
-          </small>
-        </div>
-
-        <!-- Hora extra / Banco de horas -->
-        <div class="flex flex-col gap-1">
-          <label
-            for="extra"
-            class="text-xs sm:text-sm font-semibold text-slate-700"
-          >
-            Hora extra / banco (±hh:mm)
-          </label>
-          <input
-            id="extra"
-            type="text"
-            class="border rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ex.: 01:30 ou -00:45"
-          />
-          <small class="text-[11px] text-slate-500">
-            Use <strong>positivo</strong> p/ hora extra e
-            <strong>negativo</strong> p/ banco de horas.
-          </small>
-        </div>
-
-        <!-- Botões -->
-        <div class="flex flex-col gap-2 justify-end">
+        <div class="flex justify-end pt-4">
           <button
-            id="btnCalcular"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm py-2 rounded-md transition"
+            id="btnNext1"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold shadow-md transition"
           >
-            Calcular horários
-          </button>
-          <button
-            id="btnLimpar"
-            class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium text-xs sm:text-sm py-2 rounded-md transition"
-          >
-            Limpar horários
+            Próximo passo
+            <span>➡️</span>
           </button>
         </div>
       </section>
 
-      <!-- Tabela de Entradas/Saídas -->
-      <section class="space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <h2 class="text-base sm:text-lg font-semibold text-slate-800">
-            Entradas e saídas
-          </h2>
+      <!-- PASSO 2: Entradas e saídas -->
+      <section
+        id="step2"
+        class="space-y-6 bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 hidden"
+      >
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">
+          Passo 2 – Entradas e saídas
+        </h2>
+        <p class="text-sm text-slate-600 mb-4">
+          Informe suas entradas e saídas principais. Use os
+          <strong>dois primeiros intervalos</strong> como base (manhã e tarde).
+          Você pode adicionar mais intervalos e remover os extras.
+        </p>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p class="text-sm text-slate-700 font-medium">
+              Intervalos de trabalho
+            </p>
+            <p class="text-xs text-slate-500">
+              Informe 1ª entrada e/ou última saída. O sistema completa o
+              restante.
+            </p>
+          </div>
           <button
             id="btnAdicionar"
-            class="self-start sm:self-auto inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium px-3 py-1.5 rounded-md transition"
+            class="self-start sm:self-auto inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow-sm transition"
           >
-            + Adicionar intervalo
+            ➕ Adicionar intervalo
           </button>
         </div>
 
-        <p class="text-[11px] sm:text-xs text-slate-500">
-          Obs.: o cálculo automático usa principalmente os
-          <strong>dois primeiros intervalos</strong> (manhã e tarde). Os demais
-          podem ser usados para ajustes manuais e podem ser removidos.
-        </p>
-
-        <div class="overflow-x-auto border border-slate-200 rounded-lg">
-          <table class="min-w-full text-xs sm:text-sm">
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="min-w-full text-sm">
             <thead class="bg-slate-100">
               <tr>
-                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
+                <th
+                  class="px-3 sm:px-4 py-2 text-left font-semibold text-slate-700"
+                >
                   #
                 </th>
-                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
+                <th
+                  class="px-3 sm:px-4 py-2 text-left font-semibold text-slate-700"
+                >
                   Entrada
                 </th>
-                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
+                <th
+                  class="px-3 sm:px-4 py-2 text-left font-semibold text-slate-700"
+                >
                   Saída
                 </th>
-                <th class="px-2 sm:px-3 py-2 text-left font-semibold text-slate-700">
+                <th
+                  class="px-3 sm:px-4 py-2 text-left font-semibold text-slate-700"
+                >
                   Ações
                 </th>
               </tr>
@@ -136,64 +217,177 @@
             <tbody id="tbodyIntervalos" class="divide-y divide-slate-100">
               <!-- Intervalo 1 (manhã) -->
               <tr>
-                <td class="px-2 sm:px-3 py-2 text-slate-700 font-medium">1</td>
-                <td class="px-2 sm:px-3 py-2">
+                <td class="px-3 sm:px-4 py-3 text-slate-700 font-semibold">1</td>
+                <td class="px-3 sm:px-4 py-3">
                   <input
                     type="time"
-                    class="entrada border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="entrada border rounded-lg px-3 py-2 w-28 sm:w-32 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="08:00"
                   />
                 </td>
-                <td class="px-2 sm:px-3 py-2">
+                <td class="px-3 sm:px-4 py-3">
                   <input
                     type="time"
-                    class="saida border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="saida border rounded-lg px-3 py-2 w-28 sm:w-32 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="12:00"
                   />
                 </td>
-                <td class="px-2 sm:px-3 py-2 text-[11px] text-slate-400">
+                <td class="px-3 sm:px-4 py-3 text-[11px] text-slate-400">
                   (fixo)
                 </td>
               </tr>
 
               <!-- Intervalo 2 (tarde) -->
               <tr>
-                <td class="px-2 sm:px-3 py-2 text-slate-700 font-medium">2</td>
-                <td class="px-2 sm:px-3 py-2">
+                <td class="px-3 sm:px-4 py-3 text-slate-700 font-semibold">2</td>
+                <td class="px-3 sm:px-4 py-3">
                   <input
                     type="time"
-                    class="entrada border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="entrada border rounded-lg px-3 py-2 w-28 sm:w-32 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="13:48"
                   />
                 </td>
-                <td class="px-2 sm:px-3 py-2">
+                <td class="px-3 sm:px-4 py-3">
                   <input
                     type="time"
-                    class="saida border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="saida border rounded-lg px-3 py-2 w-28 sm:w-32 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="17:48"
                   />
                 </td>
-                <td class="px-2 sm:px-3 py-2 text-[11px] text-slate-400">
+                <td class="px-3 sm:px-4 py-3 text-[11px] text-slate-400">
                   (fixo)
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <div class="flex justify-between pt-4">
+          <button
+            id="btnBack2"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-medium transition"
+          >
+            ⬅️ Voltar
+          </button>
+          <button
+            id="btnNext2"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold shadow-md transition"
+          >
+            Ir para resultado
+            <span>➡️</span>
+          </button>
+        </div>
       </section>
 
-      <!-- Mensagens -->
-      <p id="mensagem" class="text-[11px] sm:text-xs text-slate-600 italic"></p>
+      <!-- PASSO 3: Resultado -->
+      <section
+        id="step3"
+        class="space-y-6 bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 hidden"
+      >
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">
+          Passo 3 – Resultado final
+        </h2>
+        <p class="text-sm text-slate-600 mb-3">
+          Clique em <strong>Gerar horários</strong> para calcular automaticamente
+          a distribuição da sua jornada, incluindo almoço, hora extra e banco de
+          horas.
+        </p>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <button
+            id="btnBack3"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-medium transition"
+          >
+            ⬅️ Voltar para ajustes
+          </button>
+
+          <div class="flex gap-3">
+            <button
+              id="btnLimpar"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-medium transition"
+            >
+              🧹 Limpar horários
+            </button>
+            <button
+              id="btnCalcular"
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm sm:text-base font-semibold shadow-md transition"
+            >
+              ✅ Gerar horários
+            </button>
+          </div>
+        </div>
+
+        <!-- Resumo -->
+        <div
+          id="resumoCard"
+          class="hidden border border-emerald-200 rounded-2xl bg-emerald-50 p-4 sm:p-5 space-y-3"
+        >
+          <h3 class="text-lg font-semibold text-emerald-900">
+            Resumo da jornada gerada
+          </h3>
+          <p id="resumoTexto" class="text-sm text-emerald-800"></p>
+          <p class="text-xs text-emerald-700">
+            Os horários também foram preenchidos na tabela do Passo 2. Você pode
+            voltar, ajustar manualmente e gerar novamente se quiser.
+          </p>
+        </div>
+
+        <!-- Mensagens gerais -->
+        <p id="mensagem" class="text-xs text-slate-600 italic"></p>
+      </section>
     </div>
 
     <!-- Script interno -->
     <script>
+      // Referências gerais
       const tbody = document.getElementById("tbodyIntervalos");
       const btnAdicionar = document.getElementById("btnAdicionar");
       const btnCalcular = document.getElementById("btnCalcular");
       const btnLimpar = document.getElementById("btnLimpar");
       const msg = document.getElementById("mensagem");
+      const resumoCard = document.getElementById("resumoCard");
+      const resumoTexto = document.getElementById("resumoTexto");
 
+      // Passos
+      const step1 = document.getElementById("step1");
+      const step2 = document.getElementById("step2");
+      const step3 = document.getElementById("step3");
+      const stepBubble1 = document.getElementById("stepBubble1");
+      const stepBubble2 = document.getElementById("stepBubble2");
+      const stepBubble3 = document.getElementById("stepBubble3");
+      const btnNext1 = document.getElementById("btnNext1");
+      const btnNext2 = document.getElementById("btnNext2");
+      const btnBack2 = document.getElementById("btnBack2");
+      const btnBack3 = document.getElementById("btnBack3");
+
+      let currentStep = 1;
+
+      function setStep(step) {
+        currentStep = step;
+
+        step1.classList.toggle("hidden", step !== 1);
+        step2.classList.toggle("hidden", step !== 2);
+        step3.classList.toggle("hidden", step !== 3);
+
+        // Bubbles
+        function setBubble(el, active) {
+          if (active) {
+            el.className =
+              "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-blue-600 text-white";
+          } else {
+            el.className =
+              "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-slate-200 text-slate-600";
+          }
+        }
+
+        setBubble(stepBubble1, step === 1);
+        setBubble(stepBubble2, step === 2);
+        setBubble(stepBubble3, step === 3);
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Funções utilitárias de tempo
       function parseTimeToMinutes(value) {
         if (!value) return null;
         const [h, m] = value.split(":").map(Number);
@@ -202,7 +396,7 @@
       }
 
       function minutesToHHMM(mins) {
-        mins = ((mins % (24 * 60)) + 24 * 60) % (24 * 60); // normaliza 0–1439
+        mins = ((mins % (24 * 60)) + 24 * 60) % (24 * 60);
         const h = Math.floor(mins / 60);
         const m = mins % 60;
         return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
@@ -215,10 +409,7 @@
         const h = Math.floor(abs / 60);
         const m = abs % 60;
         return (
-          sign +
-          String(h).padStart(2, "0") +
-          ":" +
-          String(m).padStart(2, "0")
+          sign + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
         );
       }
 
@@ -231,13 +422,15 @@
         return mins;
       }
 
-      // Agora o almoço pode ser deixado em branco (retorna null)
+      // Almoço pode ser null (auto-cálculo)
       function getAlmocoMinutes() {
         const almocoInput = document.getElementById("almoco");
         if (!almocoInput.value) return null;
         const mins = parseTimeToMinutes(almocoInput.value);
         if (mins === null || mins <= 0) {
-          throw new Error("Informe uma duração de almoço válida (hh:mm) ou deixe em branco.");
+          throw new Error(
+            "Informe uma duração de almoço válida (hh:mm) ou deixe em branco."
+          );
         }
         return mins;
       }
@@ -245,15 +438,13 @@
       function getExtraMinutes() {
         const extraInput = document.getElementById("extra");
         const v = extraInput.value.trim();
-        if (!v) return 0; // sem hora extra / banco
-
+        if (!v) return 0;
         const match = v.match(/^([+-])?(\d{1,2}):([0-5]\d)$/);
         if (!match) {
           throw new Error(
             "Hora extra/banco inválida. Use o formato ±hh:mm (ex.: 01:30 ou -00:45)."
           );
         }
-
         const sign = match[1] === "-" ? -1 : 1;
         const h = Number(match[2]);
         const m = Number(match[3]);
@@ -263,13 +454,13 @@
       function showMessage(text, isError = false) {
         msg.textContent = text;
         msg.className =
-          "text-[11px] sm:text-xs italic " +
+          "text-xs italic " +
           (isError ? "text-red-600" : "text-emerald-700");
       }
 
       function clearMessage() {
         msg.textContent = "";
-        msg.className = "text-[11px] sm:text-xs text-slate-600 italic";
+        msg.className = "text-xs text-slate-600 italic";
       }
 
       function renumerarLinhas() {
@@ -285,23 +476,23 @@
         const index = linhas + 1;
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="px-2 sm:px-3 py-2 text-slate-700 font-medium">${index}</td>
-          <td class="px-2 sm:px-3 py-2">
+          <td class="px-3 sm:px-4 py-3 text-slate-700 font-semibold">${index}</td>
+          <td class="px-3 sm:px-4 py-3">
             <input
               type="time"
-              class="entrada border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="entrada border rounded-lg px-3 py-2 w-28 sm:w-32 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </td>
-          <td class="px-2 sm:px-3 py-2">
+          <td class="px-3 sm:px-4 py-3">
             <input
               type="time"
-              class="saida border rounded-md px-2 py-1 w-24 sm:w-28 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="saida border rounded-lg px-3 py-2 w-28 sm:w-32 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </td>
-          <td class="px-2 sm:px-3 py-2">
+          <td class="px-3 sm:px-4 py-3">
             <button
               type="button"
-              class="btn-remover text-[11px] sm:text-xs text-red-600 hover:text-red-800"
+              class="btn-remover text-xs text-red-600 hover:text-red-800"
             >
               Remover
             </button>
@@ -316,10 +507,14 @@
         entradas.forEach((i) => (i.value = ""));
         saidas.forEach((i) => (i.value = ""));
         clearMessage();
+        resumoCard.classList.add("hidden");
+        resumoTexto.textContent = "";
       }
 
       function calcularAutomatico() {
         clearMessage();
+        resumoCard.classList.add("hidden");
+        resumoTexto.textContent = "";
 
         let jornadaBaseMin;
         let almocoMin;
@@ -327,7 +522,7 @@
 
         try {
           jornadaBaseMin = getJornadaMinutes();
-          almocoMin = getAlmocoMinutes(); // pode vir null
+          almocoMin = getAlmocoMinutes();
           extraMin = getExtraMinutes();
         } catch (e) {
           showMessage(e.message, true);
@@ -335,7 +530,6 @@
         }
 
         const jornadaMin = jornadaBaseMin + extraMin;
-
         if (jornadaMin <= 0) {
           showMessage(
             "A jornada total (jornada base + hora extra/banco) ficou menor ou igual a zero.",
@@ -378,7 +572,6 @@
             return;
           }
           almocoMin = almocoCalc;
-          // Atualiza o campo visualmente
           document.getElementById("almoco").value = minutesToHHMM(almocoMin);
         }
 
@@ -392,7 +585,6 @@
           return;
         }
 
-        // Função auxiliar para garantir que almocoMin esteja definido quando necessário
         function ensureAlmoco() {
           if (almocoMin === null) {
             showMessage(
@@ -407,13 +599,11 @@
         // Cálculo a partir da primeira entrada
         if (ent1 !== null) {
           if (sai1 === null && ent2 === null && sai2 === null) {
-            // Só entrada 1 preenchida → divide jornada em 2 blocos iguais
             if (!ensureAlmoco()) return;
             sai1 = ent1 + metadeJornada;
             ent2 = sai1 + almocoMin;
             sai2 = ent2 + metadeJornada;
           } else if (sai1 !== null && ent2 === null && sai2 === null) {
-            // Entrada 1 e saída 1 preenchidas → calcula resto na tarde
             if (!ensureAlmoco()) return;
             const trabalhadoManha = sai1 - ent1;
             if (trabalhadoManha <= 0 || trabalhadoManha >= jornadaMin) {
@@ -427,7 +617,6 @@
             ent2 = sai1 + almocoMin;
             sai2 = ent2 + restante;
           } else if (sai1 === null && ent2 !== null && sai2 !== null) {
-            // Entrada 1, entrada 2 e saída 2 preenchidas → calcula saída 1
             if (!ensureAlmoco()) return;
             const trabalhadoTarde = sai2 - ent2;
             if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
@@ -447,7 +636,6 @@
               return;
             }
           } else {
-            // Caso mais solto → tenta ajustar para bater jornada total + almoço
             if (!ensureAlmoco()) return;
             const referenciaFinal = sai2 ?? ent2 ?? sai1;
             if (referenciaFinal !== null) {
@@ -468,7 +656,6 @@
           // Cálculo a partir da última saída
           if (ent1 === null && sai1 === null && ent2 === null) {
             if (!ensureAlmoco()) return;
-            // Só saída 2 preenchida → divide jornada em 2 blocos iguais
             ent2 = sai2 - metadeJornada;
             sai1 = ent2 - almocoMin;
             ent1 = sai1 - metadeJornada;
@@ -508,31 +695,53 @@
         if (ent2 !== null) ent2Input.value = minutesToHHMM(ent2);
         if (sai2 !== null) sai2Input.value = minutesToHHMM(sai2);
 
+        // Mostrar resumo
+        resumoCard.classList.remove("hidden");
+        resumoTexto.textContent = `Jornada base: ${minutesToHHMM(
+          jornadaBaseMin
+        )}, hora extra/banco: ${minutesToSignedDuration(
+          extraMin
+        )}, jornada total: ${minutesToHHMM(
+          jornadaMin
+        )}. Almoço considerado: ${
+          almocoMin !== null ? minutesToHHMM(almocoMin) : "não definido"
+        }.`;
+
         if (!msg.textContent) {
           showMessage(
-            `Cálculo concluído. Jornada base: ${minutesToHHMM(
-              jornadaBaseMin
-            )}, extra/banco: ${minutesToSignedDuration(
-              extraMin
-            )}, total: ${minutesToHHMM(jornadaMin)}.`,
+            "Cálculo concluído. Verifique o resumo e, se quiser, volte ao Passo 2 para ajustes finos.",
             false
           );
         }
       }
 
-      // Eventos
+      // Eventos de navegação entre passos
+      btnNext1.addEventListener("click", () => {
+        try {
+          // Valida jornada pelo menos
+          getJornadaMinutes();
+          setStep(2);
+        } catch (e) {
+          alert(e.message);
+        }
+      });
+
+      btnNext2.addEventListener("click", () => setStep(3));
+      btnBack2.addEventListener("click", () => setStep(1));
+      btnBack3.addEventListener("click", () => setStep(2));
+
+      // Eventos principais
       btnAdicionar.addEventListener("click", adicionarLinha);
       btnCalcular.addEventListener("click", calcularAutomatico);
       btnLimpar.addEventListener("click", limparHorarios);
 
-      // Delegação para remover apenas intervalos extras (a partir do 3º)
+      // Delegação para remover intervalos extras (a partir do 3º)
       tbody.addEventListener("click", (event) => {
         const target = event.target;
         if (target.classList.contains("btn-remover")) {
           const linhas = Array.from(tbody.querySelectorAll("tr"));
           const tr = target.closest("tr");
           const index = linhas.indexOf(tr);
-          // 0 e 1 são os dois primeiros intervalos (não remover)
           if (index > 1) {
             tr.remove();
             renumerarLinhas();
@@ -541,4 +750,4 @@
       });
     </script>
   </body>
-          </html>
+</html>
