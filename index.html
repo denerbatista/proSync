@@ -50,10 +50,11 @@
             id="almoco"
             type="time"
             class="border rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value="01:48"
+            placeholder="Deixe em branco para calcular"
           />
           <small class="text-[11px] text-slate-500">
-            Padrão: 01:48 (pode alterar)
+            Deixe em branco se quiser que o sistema calcule o almoço usando
+            <strong>1ª entrada</strong> e <strong>última saída</strong>.
           </small>
         </div>
 
@@ -208,7 +209,7 @@
       }
 
       function minutesToSignedDuration(mins) {
-        if (mins === 0) return "00:00";
+        if (mins === 0) return "+00:00";
         const sign = mins < 0 ? "-" : "+";
         const abs = Math.abs(mins);
         const h = Math.floor(abs / 60);
@@ -230,11 +231,13 @@
         return mins;
       }
 
+      // Agora o almoço pode ser deixado em branco (retorna null)
       function getAlmocoMinutes() {
         const almocoInput = document.getElementById("almoco");
+        if (!almocoInput.value) return null;
         const mins = parseTimeToMinutes(almocoInput.value);
         if (mins === null || mins <= 0) {
-          throw new Error("Informe uma duração de almoço válida (hh:mm).");
+          throw new Error("Informe uma duração de almoço válida (hh:mm) ou deixe em branco.");
         }
         return mins;
       }
@@ -324,7 +327,7 @@
 
         try {
           jornadaBaseMin = getJornadaMinutes();
-          almocoMin = getAlmocoMinutes();
+          almocoMin = getAlmocoMinutes(); // pode vir null
           extraMin = getExtraMinutes();
         } catch (e) {
           showMessage(e.message, true);
@@ -363,6 +366,22 @@
         let ent2 = parseTimeToMinutes(ent2Input.value);
         let sai2 = parseTimeToMinutes(sai2Input.value);
 
+        // Se não tem almoço informado, mas tem 1ª entrada e última saída, calcula o almoço
+        if (almocoMin === null && ent1 !== null && sai2 !== null) {
+          const totalPresenca = sai2 - ent1;
+          const almocoCalc = totalPresenca - jornadaMin;
+          if (almocoCalc < 0) {
+            showMessage(
+              "Com essa jornada, a saída informada é muito cedo (não sobra tempo para almoço). Ajuste a saída ou a jornada.",
+              true
+            );
+            return;
+          }
+          almocoMin = almocoCalc;
+          // Atualiza o campo visualmente
+          document.getElementById("almoco").value = minutesToHHMM(almocoMin);
+        }
+
         const metadeJornada = Math.round(jornadaMin / 2);
 
         if (!ent1 && !sai2 && !sai1 && !ent2) {
@@ -373,15 +392,29 @@
           return;
         }
 
+        // Função auxiliar para garantir que almocoMin esteja definido quando necessário
+        function ensureAlmoco() {
+          if (almocoMin === null) {
+            showMessage(
+              "Informe a duração do almoço ou preencha 1ª entrada e última saída para calcular o almoço automaticamente.",
+              true
+            );
+            return false;
+          }
+          return true;
+        }
+
         // Cálculo a partir da primeira entrada
         if (ent1 !== null) {
           if (sai1 === null && ent2 === null && sai2 === null) {
             // Só entrada 1 preenchida → divide jornada em 2 blocos iguais
+            if (!ensureAlmoco()) return;
             sai1 = ent1 + metadeJornada;
             ent2 = sai1 + almocoMin;
             sai2 = ent2 + metadeJornada;
           } else if (sai1 !== null && ent2 === null && sai2 === null) {
             // Entrada 1 e saída 1 preenchidas → calcula resto na tarde
+            if (!ensureAlmoco()) return;
             const trabalhadoManha = sai1 - ent1;
             if (trabalhadoManha <= 0 || trabalhadoManha >= jornadaMin) {
               showMessage(
@@ -395,6 +428,7 @@
             sai2 = ent2 + restante;
           } else if (sai1 === null && ent2 !== null && sai2 !== null) {
             // Entrada 1, entrada 2 e saída 2 preenchidas → calcula saída 1
+            if (!ensureAlmoco()) return;
             const trabalhadoTarde = sai2 - ent2;
             if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
               showMessage(
@@ -414,6 +448,7 @@
             }
           } else {
             // Caso mais solto → tenta ajustar para bater jornada total + almoço
+            if (!ensureAlmoco()) return;
             const referenciaFinal = sai2 ?? ent2 ?? sai1;
             if (referenciaFinal !== null) {
               const totalPresenca = referenciaFinal - ent1;
@@ -432,11 +467,13 @@
         } else if (sai2 !== null) {
           // Cálculo a partir da última saída
           if (ent1 === null && sai1 === null && ent2 === null) {
+            if (!ensureAlmoco()) return;
             // Só saída 2 preenchida → divide jornada em 2 blocos iguais
             ent2 = sai2 - metadeJornada;
             sai1 = ent2 - almocoMin;
             ent1 = sai1 - metadeJornada;
           } else if (ent1 === null && sai1 !== null && ent2 !== null) {
+            if (!ensureAlmoco()) return;
             const trabalhadoTarde = sai2 - ent2;
             if (trabalhadoTarde <= 0 || trabalhadoTarde >= jornadaMin) {
               showMessage(
@@ -455,6 +492,7 @@
               return;
             }
           } else {
+            if (!ensureAlmoco()) return;
             ent2 = sai2 - metadeJornada;
             sai1 = ent2 - almocoMin;
             ent1 = sai1 - metadeJornada;
@@ -503,4 +541,4 @@
       });
     </script>
   </body>
-</html>
+          </html>
